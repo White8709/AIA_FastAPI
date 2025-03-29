@@ -1,0 +1,135 @@
+大家好今天會由我跟另一位講師Chris跟大家介紹FastAPI網頁架構
+
+這是今天的Agenda
+我們會先跟大家簡單介紹FastAPI
+再來會帶大家了解非同步以及依賴注入
+然後會帶大家感受一下SSE
+最後帶大家實作WebSocket應用
+
+那我們就開始講解甚麼是FastAPI
+FastAPI是一個Python的API框架，專門用來做快速高效率的API
+因為使用非同步設計，適合高併發的需求
+舉個例子像是ChatAI這種模型推論服務就很適合
+
+Fast 我們很好理解就是快
+那甚麼東西要快?就是我們的API
+API全名是Application Programming Interface
+目的是在我們的後端系統上建立接口
+讓像是第三方開發者、其他系統、或是一些應用程式調用方法
+
+那FastAPI有哪些優勢呢?
+因為FastAPI基於輕量型網頁框架Starlette開發的
+所以他的效能媲美NodeJS或是Go這種高效能框架
+非常適合快速大量請求的API應用
+
+FastAPI結合資料驗證工具Pydantic
+自動對型別做驗證
+有效減少錯誤並提升穩定性
+
+FastAPI會根據API定義自動生成互動式文件
+方便測試、前端溝通
+
+FastAPI強調簡單、可讀性高
+適合需要快速迭代的專案
+
+綜合以上特性呢
+可以提高開發效率2倍到3倍
+
+為甚麼FastAPI效能可以媲美NodesJS或是Go?
+這邊要帶大家了解WSGI、ASGI
+WSGI 是一種通信標準
+他定義我們的應用程式要怎麼跟Web兼容
+像是Gunicorn、uWSGI、mod_wsgi都是走WSGI的通信標準
+
+我們來看WSGI的整個流程
+User在訪問我們的網站的時候 會發送Http請求
+伺服器會接收到請求像是Gunicorn
+那伺服器就會透過WSGI把請求傳給應用程式像是FastAPI
+應用程式處理完後 會把http響應丟給伺服器
+最後伺服器把http響應發送回去給User
+
+從這張圖可以看到
+WSGI在處裡請求的時候
+同一個時間只能處理一個請求
+並且在處理完後
+才會把資源釋放出來
+在最初設計的時候
+也沒有考慮到大量請求或是持續傳輸的問題
+
+在看完WSGI可以發現
+WSGI已經沒有辦法應付現在的網路需求
+所以就出現了ASGI
+全名是Asynchronous Server Gateway Interface
+最大的改進就是支援非同步的請求處理
+支援WebScocket、SSE、長輪詢
+
+假設User發出HTTP 或 WebSocket 請求
+ASGI伺服器會接收請求，像是Uvicorn
+伺服器會再交給應用程式執行異步處理像是:FastAPI、Starlette
+最後返回結果給使用者
+
+相較WSGI
+ASGI可處理傳統 HTTP 請求
+也可以處理 WebSocket、SSE、背景任務
+適合高並發應用（如聊天應用、即時通知）
+
+這邊幫大家整理成簡單的比較表
+可以看到ASGI可以支援異步執行也支援WebScocket
+WSGI就只適合一般HTTP服務
+ASGI除了一般HTTP服務還可以用在高併發應用
+像是Uvicorn、Daphne 使用ASGI
+Gunicorn、uWSGI 使用WSGI
+框架的話ASGI有FastAPI、Django Channels
+WSGI有Flask、Django
+
+在選擇Python的後端開發框架時
+FastAPI、Django、Flask 是三個主要的選擇
+FastAPI是一個比較新的框架
+注重高效能和非同步處理
+非常適合架設高效能應用像是推論模型服務
+Flask 是一個輕量級框架，設計簡潔且高度靈活
+適合簡單且客製化需求高的應用
+Django是一個功能完整的框架
+內建很多功能，比較適合全功能的應用程式開發
+FastAPI上手非常容易
+
+Uvicorn 是一個ASGI Python Web 伺服器
+他有兩個特性
+一是支援非同步 I/O
+二是啟動非常快速
+所以常用來部署支援非同步的 Web 框架
+像是FastAPI或是Starlette這類支持高併發的 Web 應用。
+
+因為colab沒辦法直接訪問虛擬機的localhost
+所以我們要借助ngrok把網址發佈出來
+
+http協定就是客戶端跟伺服器端
+大家一起講好要用甚麼方式溝通
+
+http的請求方法有8種
+這邊列出比較常見的5種
+Get就是我們CRUD的Read
+用來讀取資料
+Post對應到Create
+用來新增資料
+Put Patch對應到Update
+都是用來更新資料
+Patch只更新部分資料
+Delete刪除資料
+Server回傳的狀態碼有四種
+2開頭是OK
+3開頭是重新導向
+4開頭是客戶端錯誤
+5開頭是伺服器錯誤
+
+以往設計API 的時候
+每進行一項資料的操作時都要設計一個 URL 網址
+如果依照RESTful API
+只需要一個URL網址
+依照你的http method
+即可滿足所有資料的操作。
+
+
+FastAPI Curl
+curl -X 'GET' \  'http://127.0.0.1:5000/users/me/' \  -H 'accept: application/json' \  -H 'Authorization: BearereyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2huZG9lIiwiZXhwIjoxNzQyMzg1NTg4fQ.U4YUtlVVS2P_3iEV25flEhu8tcTb1nJQstl9EFl3yzk'
+
