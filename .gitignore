@@ -1,3 +1,22 @@
+# Python cache
 __pycache__/
-.theia
-.vacode
+*.py[cod]
+*.so
+
+# VS Code settings
+.vscode/
+.vacode/
+
+# Theia IDE
+.theia/
+
+# Environment files
+.env
+*.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
