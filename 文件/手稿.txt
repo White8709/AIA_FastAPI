@@ -153,6 +153,7 @@ Swagger能夠自動生成API文件
 FastAPI還會自動生成Swagger
 
 實作
+New-Item test.db -ItemType File
 
 FastAPI Curl
 curl -X 'GET' \  'http://127.0.0.1:5000/users/me/' \  -H 'accept: application/json' \  -H 'Authorization: BearereyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2huZG9lIiwiZXhwIjoxNzQyMzg1NTg4fQ.U4YUtlVVS2P_3iEV25flEhu8tcTb1nJQstl9EFl3yzk'
