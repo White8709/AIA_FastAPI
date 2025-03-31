@@ -100,8 +100,17 @@ Uvicorn 是一個ASGI Python Web 伺服器
 所以常用來部署支援非同步的 Web 框架
 像是FastAPI或是Starlette這類支持高併發的 Web 應用。
 
-因為colab沒辦法直接訪問虛擬機的localhost
-所以我們要借助ngrok把網址發佈出來
+實作
+
+Pydantic主要功能是做資料驗證和資料的解析
+透過定義型態來做資料驗證和序列化
+Python中最快的資料驗證library
+可以生成JSON Schema
+或從JSON、字典或其他結構化資料格式中
+解析並建立資料模型
+支援Lax、Strict模式
+支援多種型態的驗證
+支援客製的驗證
 
 http協定就是客戶端跟伺服器端
 大家一起講好要用甚麼方式溝通
@@ -129,6 +138,21 @@ Server回傳的狀態碼有四種
 依照你的http method
 即可滿足所有資料的操作。
 
+Swagger是一間名為SmartBear Software
+開發出的REST API 的工具
+後來貢獻給OpenAPI Initiative
+並公開讓所有人都能夠使用
+為什麼要用Swagger
+以前可能會用像是Word、Excel或是HackMD寫文件
+通常會有幾個問題
+API更新文件沒更新
+寫的時候寫錯
+工程師也不是很願意寫
+Swagger能夠自動生成API文件
+而且還可以在線上進行測試
+FastAPI還會自動生成Swagger
+
+實作
 
 FastAPI Curl
 curl -X 'GET' \  'http://127.0.0.1:5000/users/me/' \  -H 'accept: application/json' \  -H 'Authorization: BearereyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2huZG9lIiwiZXhwIjoxNzQyMzg1NTg4fQ.U4YUtlVVS2P_3iEV25flEhu8tcTb1nJQstl9EFl3yzk'

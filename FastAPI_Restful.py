@@ -33,6 +33,7 @@ def query_Fruits():
 def query_Fruit(fruit_id: int):
     if fruit_id not in fake_db:
         raise HTTPException(status_code=404, detail="Fruit not found")
+
     return fake_db[fruit_id]
 
 @app.put("/fruit/{fruit_id}", response_model=Fruit, tags=["Fruit"])
