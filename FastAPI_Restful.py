@@ -5,7 +5,7 @@ from typing import List
 
 app = FastAPI()
 
-class Item(BaseModel):
+class Fruit(BaseModel):
     id: int
     name: str
     description: str = None
@@ -13,41 +13,41 @@ class Item(BaseModel):
     on_offer: bool = False
 
 fake_db = {
-    1: Item(id=1, name="Item 1", description="Description for Item 1", price=10.0, on_offer=True),
-    2: Item(id=2, name="Item 2", description="Description for Item 2", price=20.0, on_offer=False),
-    3: Item(id=3, name="Item 3", description="Description for Item 3", price=30.0, on_offer=True),
+    1: Fruit(id=1, name="香蕉", description="這是香蕉", price=41.9, on_offer=True),
+    2: Fruit(id=2, name="蘋果", description="這是蘋果", price=36.0, on_offer=False),
+    3: Fruit(id=3, name="芭樂", description="這是芭樂", price=39.7, on_offer=True),
 }
 
-@app.post("/resource", response_model=Item)
-def create_item(item: Item):
-    if item.id in fake_db:
-        raise HTTPException(status_code=400, detail="Item already exists")
-    fake_db[item.id] = item
-    return item
+@app.post("/fruit", response_model=Fruit, tags=["Fruit"])
+def create_Fruit(fruit: Fruit):
+    if any(existing_fruit.name == fruit.name for existing_fruit in fake_db.values()):
+        raise HTTPException(status_code=400, detail="fruit already exists")
+    fake_db[fruit.id] = fruit
+    return fruit
 
-@app.get("/resource", response_model=List[Item])
-def read_items():
+@app.get("/fruit", response_model=List[Fruit], tags=["Fruit"])
+def query_Fruits():
     return list(fake_db.values())
 
-@app.get("/resource/{item_id}", response_model=Item)
-def read_item(item_id: int):
-    if item_id not in fake_db:
-        raise HTTPException(status_code=404, detail="Item not found")
-    return fake_db[item_id]
+@app.get("/fruit/{fruit_id}", response_model=Fruit, tags=["Fruit"])
+def query_Fruit(fruit_id: int):
+    if fruit_id not in fake_db:
+        raise HTTPException(status_code=404, detail="Fruit not found")
+    return fake_db[fruit_id]
 
-@app.put("/resource/{item_id}", response_model=Item)
-def update_item(item_id: int, item: Item):
-    if item_id not in fake_db:
-        raise HTTPException(status_code=404, detail="Item not found")
-    fake_db[item_id] = item
-    return item
+@app.put("/fruit/{fruit_id}", response_model=Fruit, tags=["Fruit"])
+def update_Fruit(fruit_id: int, fruit: Fruit):
+    if fruit_id not in fake_db:
+        raise HTTPException(status_code=404, detail="Fruit not found")
+    fake_db[fruit_id] = fruit
+    return fruit
 
-@app.delete("/resource/{item_id}")
-def delete_item(item_id: int):
-    if item_id not in fake_db:
-        raise HTTPException(status_code=404, detail="Item not found")
-    del fake_db[item_id]
-    return {"message": "Item deleted successfully"}
+@app.delete("/fruit/{fruit_id}", tags=["Fruit"])
+def delete_Fruit(fruit_id: int):
+    if fruit_id not in fake_db:
+        raise HTTPException(status_code=404, detail="Fruit not found")
+    del fake_db[fruit_id]
+    return {"message": "Fruit deleted successfully"}
 
 if __name__ == "__main__":
-    uvicorn.run("FastAPI:app", host="127.0.0.1", port=8000)
+    uvicorn.run("FastAPI_Restful:app", host="127.0.0.1", port=8000, reload=True)
