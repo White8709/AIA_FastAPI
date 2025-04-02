@@ -1,100 +1,52 @@
 import uvicorn
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List , Optional
-from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.future import select
+from typing import List
 
 app = FastAPI()
 
-DATABASE_URL = "sqlite+aiosqlite:///./test.db"
-engine = create_async_engine(DATABASE_URL, echo=True)
-SessionLocal = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
-
-Base = declarative_base()
-
-class Fruit(Base):
-    __tablename__ = "fruit"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    description = Column(String, default=None)
-    price = Column(Float)
-    on_offer = Column(Boolean, default=False)
-
-class FruitCreate(BaseModel):
-    id: int = None
+class Fruit(BaseModel):
+    id: int
     name: str
-    description: Optional[str] = None
+    description: str = None
     price: float
     on_offer: bool = False
 
-async def get_db():
-    async with SessionLocal() as session:
-        yield session
+fake_db = {
+    1: Fruit(id=1, name="香蕉", description="這是香蕉", price=41.9, on_offer=True),
+    2: Fruit(id=2, name="蘋果", description="這是蘋果", price=36.0, on_offer=False),
+    3: Fruit(id=3, name="芭樂", description="這是芭樂", price=39.7, on_offer=True),
+}
 
-# 创建水果
-@app.post("/fruit", response_model=FruitCreate, tags=["Fruit"])
-async def create_Fruit(fruit: FruitCreate, db: AsyncSession = Depends(get_db)):
-    # 检查水果是否存在
-    result = await db.execute(select(Fruit).filter(Fruit.name == fruit.name))
-    existing_fruit = result.scalars().first()
-    if existing_fruit:
-        raise HTTPException(status_code=400, detail="Fruit already exists")
-    
-    # 添加新水果
-    db_fruit = Fruit(name=fruit.name, description=fruit.description, price=fruit.price, on_offer=fruit.on_offer)
-    db.add(db_fruit)
-    await db.commit()
-    await db.refresh(db_fruit)
-    return db_fruit
-
-# 查询所有水果
-@app.get("/fruit", response_model=List[FruitCreate], tags=["Fruit"])
-async def query_Fruits(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Fruit))
-    fruits = result.scalars().all()
-    return fruits
-
-# 查询单个水果
-@app.get("/fruit/{fruit_id}", response_model=FruitCreate, tags=["Fruit"])
-async def query_Fruit(fruit_id: int, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Fruit).filter(Fruit.id == fruit_id))
-    fruit = result.scalars().first()
-    if not fruit:
-        raise HTTPException(status_code=404, detail="Fruit not found")
+@app.post("/fruit", response_model=Fruit, tags=["Fruit"])
+def create_Fruit(fruit: Fruit):
+    if any(existing_fruit.name == fruit.name for existing_fruit in fake_db.values()):
+        raise HTTPException(status_code=400, detail="fruit already exists")
+    fake_db[fruit.id] = fruit
     return fruit
 
-# 更新水果
-@app.put("/fruit/{fruit_id}", response_model=FruitCreate, tags=["Fruit"])
-async def update_Fruit(fruit_id: int, fruit: FruitCreate, db: AsyncSession = Depends(get_db)):
-    db_fruit = await db.execute(select(Fruit).filter(Fruit.id == fruit_id))
-    db_fruit = db_fruit.scalars().first()
-    if not db_fruit:
+@app.get("/fruit", response_model=List[Fruit], tags=["Fruit"])
+def query_Fruits():
+    return list(fake_db.values())
+
+@app.get("/fruit/{fruit_id}", response_model=Fruit, tags=["Fruit"])
+def query_Fruit(fruit_id: int):
+    if fruit_id not in fake_db:
         raise HTTPException(status_code=404, detail="Fruit not found")
-    
-    db_fruit.name = fruit.name
-    db_fruit.description = fruit.description
-    db_fruit.price = fruit.price
-    db_fruit.on_offer = fruit.on_offer
+    return fake_db[fruit_id]
 
-    db.add(db_fruit)
-    await db.commit()
-    await db.refresh(db_fruit)
-    return db_fruit
+@app.put("/fruit/{fruit_id}", response_model=Fruit, tags=["Fruit"])
+def update_Fruit(fruit_id: int, fruit: Fruit):
+    if fruit_id not in fake_db:
+        raise HTTPException(status_code=404, detail="Fruit not found")
+    fake_db[fruit_id] = fruit
+    return fruit
 
-# 删除水果
 @app.delete("/fruit/{fruit_id}", tags=["Fruit"])
-async def delete_Fruit(fruit_id: int, db: AsyncSession = Depends(get_db)):
-    db_fruit = await db.execute(select(Fruit).filter(Fruit.id == fruit_id))
-    db_fruit = db_fruit.scalars().first()
-    if not db_fruit:
+def delete_Fruit(fruit_id: int):
+    if fruit_id not in fake_db:
         raise HTTPException(status_code=404, detail="Fruit not found")
-    
-    await db.delete(db_fruit)
-    await db.commit()
+    del fake_db[fruit_id]
     return {"message": "Fruit deleted successfully"}
 
 if __name__ == "__main__":
