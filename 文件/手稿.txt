@@ -1,3 +1,4 @@
+
 大家好今天會由我跟另一位講師Chris跟大家介紹FastAPI網頁架構
 
 這是今天的Agenda
@@ -153,6 +154,25 @@ Swagger能夠自動生成API文件
 FastAPI還會自動生成Swagger
 
 實作
+
+在這個章節
+我會帶大家把剛剛的專案改成非同步方法
+然後我們會使用SQL連線資料庫
+
+
+
+SQLAlchemy是一款Python開源軟體
+提供SQL工具包及ORM的功能
+可以讓我們使用Python的class定義數據庫物件
+並自動映射到資料庫
+支援多種資料庫
+對API Framework相容性也很好
+切換資料庫也很方便
+但對於比較小的項目來說可能會覺得有點複雜
+ORM在處理大量數據的時候
+可能會有較大的性能開銷
+因為它需要轉換Python對象和數據庫表格之間的映射
+
 New-Item test.db -ItemType File
 
 FastAPI Curl
