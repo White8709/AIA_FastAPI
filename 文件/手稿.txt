@@ -159,7 +159,16 @@ FastAPI還會自動生成Swagger
 我會帶大家把剛剛的專案改成非同步方法
 然後我們會使用SQL連線資料庫
 
+ORM 全名是 Object-Relational Mapping
+可以把Python物件跟資料庫做映射
+就不用在程式裡寫SQL語句
 
+它的優點有
+自動轉換成對應的SQL操作
+不是直接下SQL指令，所以可以避免掉SQL Injection
+可以讓整體的程式碼較好理解，比較容易維護
+缺點
+中間需要多一層轉譯，會損失一點效能
 
 SQLAlchemy是一款Python開源軟體
 提供SQL工具包及ORM的功能
