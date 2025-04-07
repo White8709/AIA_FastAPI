@@ -1,5 +1,5 @@
 import uvicorn
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Response
 from pydantic import BaseModel
 from typing import List , Optional
 from sqlalchemy import Column, Integer, String, Float, Boolean
@@ -73,7 +73,7 @@ async def query_Fruit(fruit_id: int, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Fruit not found")
     return fruit
 
-@app.put("/fruit/{fruit_id}", response_model=FruitCreate, tags=["Fruit"])
+@app.put("/fruit/{fruit_id}", response_model=FruitRead, tags=["Fruit"])
 async def update_Fruit(fruit_id: int, fruit: FruitCreate, db: AsyncSession = Depends(get_db)):
     db_fruit = await db.execute(select(Fruit).filter(Fruit.id == fruit_id))
     db_fruit = db_fruit.scalars().first()
@@ -85,12 +85,11 @@ async def update_Fruit(fruit_id: int, fruit: FruitCreate, db: AsyncSession = Dep
     db_fruit.price = fruit.price
     db_fruit.on_offer = fruit.on_offer
 
-    db.add(db_fruit)
     await db.commit()
     await db.refresh(db_fruit)
     return db_fruit
 
-@app.delete("/fruit/{fruit_id}", tags=["Fruit"])
+@app.delete("/fruit/{fruit_id}", status_code=204, tags=["Fruit"])
 async def delete_Fruit(fruit_id: int, db: AsyncSession = Depends(get_db)):
     db_fruit = await db.execute(select(Fruit).filter(Fruit.id == fruit_id))
     db_fruit = db_fruit.scalars().first()
@@ -99,7 +98,7 @@ async def delete_Fruit(fruit_id: int, db: AsyncSession = Depends(get_db)):
     
     await db.delete(db_fruit)
     await db.commit()
-    return {"message": "Fruit deleted successfully"}
+    return Response(status_code=204)
 
 if __name__ == "__main__":
     uvicorn.run("FastAPI_DB:app", host="127.0.0.1", port=8000, reload=True)
