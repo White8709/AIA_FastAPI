@@ -90,4 +90,4 @@ async def delete_Fruit(fruit_id: int, db: AsyncSession = Depends(get_db)):
     return {"message": "Fruit deleted successfully"}
 
 if __name__ == "__main__":
-    uvicorn.run("FastAPI_Restful:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("FastAPI_DB:app", host="127.0.0.1", port=8000, reload=True)
