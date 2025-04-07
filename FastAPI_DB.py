@@ -30,6 +30,9 @@ class FruitCreate(BaseModel):
     price: float
     on_offer: bool = False
 
+    class Config:
+        orm_mode = True
+
 class FruitRead(BaseModel):
     id: int
     name: str
@@ -44,7 +47,7 @@ async def get_db():
     async with SessionLocal() as session:
         yield session
 
-@app.post("/fruit", response_model=FruitCreate, tags=["Fruit"])
+@app.post("/fruit", response_model=FruitRead, tags=["Fruit"])
 async def create_Fruit(fruit: FruitCreate, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Fruit).filter(Fruit.name == fruit.name))
     existing_fruit = result.scalars().first()
