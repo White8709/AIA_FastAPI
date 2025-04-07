@@ -25,11 +25,20 @@ class Fruit(Base):
     on_offer = Column(Boolean, default=False)
 
 class FruitCreate(BaseModel):
-    id: int = None
     name: str
     description: Optional[str] = None
     price: float
     on_offer: bool = False
+
+class FruitRead(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
+    price: float
+    on_offer: bool
+
+    class Config:
+        orm_mode = True
 
 async def get_db():
     async with SessionLocal() as session:
@@ -47,13 +56,13 @@ async def create_Fruit(fruit: FruitCreate, db: AsyncSession = Depends(get_db)):
     await db.refresh(db_fruit)
     return db_fruit
 
-@app.get("/fruit", response_model=List[FruitCreate], tags=["Fruit"])
+@app.get("/fruit", response_model=List[FruitRead], tags=["Fruit"])
 async def query_Fruits(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Fruit))
     fruits = result.scalars().all()
     return fruits
 
-@app.get("/fruit/{fruit_id}", response_model=FruitCreate, tags=["Fruit"])
+@app.get("/fruit/{fruit_id}", response_model=FruitRead, tags=["Fruit"])
 async def query_Fruit(fruit_id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Fruit).filter(Fruit.id == fruit_id))
     fruit = result.scalars().first()
