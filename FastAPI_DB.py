@@ -79,12 +79,10 @@ async def update_Fruit(fruit_id: int, fruit: FruitCreate, db: AsyncSession = Dep
     db_fruit = db_fruit.scalars().first()
     if not db_fruit:
         raise HTTPException(status_code=404, detail="Fruit not found")
-    
     db_fruit.name = fruit.name
     db_fruit.description = fruit.description
     db_fruit.price = fruit.price
     db_fruit.on_offer = fruit.on_offer
-
     await db.commit()
     await db.refresh(db_fruit)
     return db_fruit
@@ -95,7 +93,6 @@ async def delete_Fruit(fruit_id: int, db: AsyncSession = Depends(get_db)):
     db_fruit = db_fruit.scalars().first()
     if not db_fruit:
         raise HTTPException(status_code=404, detail="Fruit not found")
-    
     await db.delete(db_fruit)
     await db.commit()
     return Response(status_code=204)
