@@ -49,20 +49,30 @@
         const chatBox = document.getElementById("chatBox");
         const chatForm = document.getElementById("chatForm");
         const messageInput = document.getElementById("message");
+        const submitButton = chatForm.querySelector("button");
+    
+        let isStreaming = false;
     
         chatForm.addEventListener("submit", handleSubmit);
     
         messageInput.addEventListener("keydown", function (e) {
             if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();  // 阻止換行
-                chatForm.requestSubmit();  // 觸發 form 提交
+                if (!isStreaming) {
+                    chatForm.requestSubmit();  // 觸發表單送出
+                }
             }
         });
     
         async function handleSubmit(e) {
             e.preventDefault();
             const message = messageInput.value.trim();
-            if (!message) return;
+            if (!message || isStreaming) return;
+    
+            // 鎖定輸入
+            isStreaming = true;
+            messageInput.disabled = true;
+            submitButton.disabled = true;
     
             // 顯示使用者訊息
             const userDiv = document.createElement("div");
@@ -73,34 +83,43 @@
             messageInput.value = "";
             chatBox.scrollTop = chatBox.scrollHeight;
     
-            // 傳送訊息給後端
-            const response = await fetch("/chat", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    message: message,
-                    history: []
-                })
-            });
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        history: []
+                    })
+                });
     
-            // 串流顯示回應
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let assistantDiv = document.createElement("div");
-            assistantDiv.className = "assistant";
-            assistantDiv.textContent = "AI：";
-            chatBox.appendChild(assistantDiv);
+                // 串流顯示回應
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let assistantDiv = document.createElement("div");
+                assistantDiv.className = "assistant";
+                assistantDiv.textContent = "助理：";
+                chatBox.appendChild(assistantDiv);
     
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                const chunk = decoder.decode(value);
-                assistantDiv.textContent += chunk;
-                chatBox.scrollTop = chatBox.scrollHeight;
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    const chunk = decoder.decode(value);
+                    assistantDiv.textContent += chunk;
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+            } catch (error) {
+                alert("發送失敗，請再試一次！");
             }
+    
+            // 解鎖輸入
+            isStreaming = false;
+            messageInput.disabled = false;
+            submitButton.disabled = false;
+            messageInput.focus();
         }
-    </script>    
+    </script>      
 </body>
 </html>
