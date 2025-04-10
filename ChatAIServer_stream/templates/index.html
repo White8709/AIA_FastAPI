@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>聊天機器人</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .chat-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+        }
+        .user, .assistant {
+            margin: 10px 0;
+        }
+        .user {
+            text-align: right;
+            color: blue;
+        }
+        .assistant {
+            text-align: left;
+            color: green;
+        }
+        textarea {
+            width: 100%;
+            height: 80px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>智慧聊天機器人</h1>
+    <div class="chat-box" id="chatBox"></div>
+    <form id="chatForm">
+        <textarea id="message" placeholder="輸入..."></textarea><br>
+        <button type="submit">送出</button>
+    </form>
+    <script>
+        const chatBox = document.getElementById("chatBox");
+        const chatForm = document.getElementById("chatForm");
+        const messageInput = document.getElementById("message");
+    
+        chatForm.addEventListener("submit", handleSubmit);
+    
+        messageInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();  // 阻止換行
+                chatForm.requestSubmit();  // 觸發 form 提交
+            }
+        });
+    
+        async function handleSubmit(e) {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            if (!message) return;
+    
+            // 顯示使用者訊息
+            const userDiv = document.createElement("div");
+            userDiv.className = "user";
+            userDiv.textContent = "你：" + message;
+            chatBox.appendChild(userDiv);
+    
+            messageInput.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+    
+            // 傳送訊息給後端
+            const response = await fetch("/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    message: message,
+                    history: []
+                })
+            });
+    
+            // 串流顯示回應
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let assistantDiv = document.createElement("div");
+            assistantDiv.className = "assistant";
+            assistantDiv.textContent = "AI：";
+            chatBox.appendChild(assistantDiv);
+    
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                const chunk = decoder.decode(value);
+                assistantDiv.textContent += chunk;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+    </script>    
+</body>
+</html>
